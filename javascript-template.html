@@ -13,6 +13,7 @@
     <script>
         const FPS = 30; //frames per second
         const SHIP_SIZE = 30; // ship height in pixels
+        const SHIP_THRUST = 5; // acceleration of the ship in pixels per second / per second
         const TURN_SPEED = 360; // turn speed in degrees per second
         /** @type {HTMLCanvasElement} */
         var canv = document.getElementById("gameCanvas");
@@ -23,7 +24,12 @@
             y: canv.height / 2,
             r: SHIP_SIZE / 2,
             a: 90 / 180 * Math.PI, // convert to radians
-            rot: 0
+            rot: 0,
+            thrusting: false, 
+            thrust: {
+                x: 0,
+                y: 0
+            }
         }
 
         // set up event handlers
@@ -39,7 +45,7 @@
                     ship.rot = TURN_SPEED / 180 * Math.PI / FPS;
                     break;
                 case 38: // up arrow (thrust ship forward)
-
+                    ship.thrusting = true;
                     break;
 
                 case 39: // left arrow (rotate ship right)
@@ -54,7 +60,7 @@
                     ship.rot = 0;
                     break;
                 case 38: // up arrow (stop thrusting)
-
+                    ship.thrusting = false;
                     break;
 
                 case 39: // left arrow (stop rotating right)
@@ -67,6 +73,12 @@
             // draw space
             ctx.fillStyle = "black";
             ctx.fillRect(0,0,canv.width, canv.height);
+
+            // thrust the ship
+            if (ship.thrusting){
+                ship.thrust.x += SHIP_THRUST * Math.cos(ship.a)/ FPS; 
+                ship.thrust.y -= SHIP_THRUST * Math.sin(ship.a)/ FPS;
+            }
 
             // draw a triangular ship
             ctx.strokeStyle = "white",
@@ -94,6 +106,8 @@
             ship.a += ship.rot;
 
             // move ship
+            ship.x += ship.thrust.x;
+            ship.y += ship.thrust.y;
 
             // centre dot
             ctx.fillStyle = "red"
